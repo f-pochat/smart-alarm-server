@@ -23,6 +23,7 @@ model classicAlarm {
 model smartAlarm {
   id String @id @default(uuid())
   name String
+  isActive Boolean @default(true)
   createdAt DateTime @default(now())
   preparationTime Int
   alarmLocationLat String

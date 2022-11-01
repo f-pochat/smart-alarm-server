@@ -1,6 +1,6 @@
 import { IsByteLength, IsNotEmpty } from 'class-validator';
 
-export class CreateAlarmResponseDto {
+export class CreateClassicAlarmResponseDto {
   @IsNotEmpty()
   time: Date;
 

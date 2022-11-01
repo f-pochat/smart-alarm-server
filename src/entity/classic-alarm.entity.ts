@@ -1,4 +1,4 @@
-export class Alarm {
+export class ClassicAlarm {
   id: string;
   time: Date;
   days: object;

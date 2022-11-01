@@ -5,7 +5,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 
-export class CreateAlarmDto {
+export class CreateClassicAlarmDto {
   @IsNotEmpty()
   @IsDateString()
   time: Date;

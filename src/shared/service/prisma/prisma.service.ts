@@ -1,8 +1,16 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, INestApplication } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  INestApplication,
+} from '@nestjs/common';
 import { DatabaseService } from './database.service';
 
 @Injectable()
-export class PrismaService extends DatabaseService implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends DatabaseService
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     super();
   }
