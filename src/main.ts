@@ -3,6 +3,7 @@ import { AppModule } from './modules/app/app.module';
 import { randomUUID } from 'crypto';
 import { connect } from 'mqtt';
 import { scheduleJob } from 'node-schedule';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const client = connect(
   `tls://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`,
@@ -31,6 +32,14 @@ async function bootstrap() {
 
   //Init server
   const app = await NestFactory.create(AppModule);
+  const config = new DocumentBuilder()
+    .setTitle('Smart Alarm')
+    .setDescription('Contiene endpoints esos de swagger')
+    .setVersion('1.0')
+    .addTag('smart-alarm')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT || 8080);
 }
 
