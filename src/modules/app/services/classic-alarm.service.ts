@@ -13,8 +13,7 @@ export class ClassicAlarmService {
   async createAlarm(
     alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
-    alarm.time = new Date(alarm.time);
-    const createdAlarm = await this.app.create(alarm);
+    console.log(alarm.deviceId);
     // const rule = new RecurrenceRule();
     // rule.dayOfWeek = alarm.days;
     // rule.hour = createdAlarm.time.getHours();
@@ -27,7 +26,10 @@ export class ClassicAlarmService {
     //     })
     //     console.log("ALARM ACTIVATED")
     // });
-    return createdAlarm;
+    return await this.app.create({
+      ...alarm,
+      time: new Date(),
+    });
   }
 
   async getAllAlarms(deviceId: string): Promise<ClassicAlarm[]> {

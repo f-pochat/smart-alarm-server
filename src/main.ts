@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
 import { randomUUID } from 'crypto';
 import { connect } from 'mqtt';
-import { scheduleJob } from 'node-schedule';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 export const client = connect(
   `tls://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`,
@@ -32,6 +32,15 @@ async function bootstrap() {
 
   //Init server
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('Smart Alarm')
     .setDescription('Contiene endpoints esos de swagger')

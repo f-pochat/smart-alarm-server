@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ClassicAlarmService } from '../services/classic-alarm.service';
 import { CreateClassicAlarmDto } from '../../../dto/CreateClassicAlarm.dto';
 import { CreateClassicAlarmResponseDto } from '../../../dto/CreateClassicAlarmResponse.dto';
@@ -9,9 +18,16 @@ export class ClassicAlarmController {
   constructor(private readonly appService: ClassicAlarmService) {}
 
   @Post()
+  // @UsePipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     expectedType: CreateClassicAlarmDto,
+  //   }),
+  // )
   async createAlarm(
     @Body() alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
+    console.log(alarm);
     return await this.appService.createAlarm(alarm);
   }
 
