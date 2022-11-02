@@ -13,6 +13,7 @@ export class SmartAlarmController {
 
   @Post()
   async createAlarm(@Body() alarm: CreateSmartAlarmDto): Promise<SmartAlarm> {
+    console.log(alarm);
     return await this.appService.createAlarm(alarm);
   }
 

@@ -47,3 +47,12 @@ export class BadRequestError extends ApiError {
     super(HttpStatus.BAD_REQUEST, message);
   }
 }
+
+export class MapsApiError extends ApiError {
+  constructor(message: string) {
+    super(
+      HttpStatus.BAD_REQUEST,
+      `There has been an error with Maps: ${message}`,
+    );
+  }
+}

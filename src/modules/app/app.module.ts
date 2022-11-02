@@ -7,9 +7,11 @@ import { SmartAlarmController } from './controllers/smart-alarm.controller';
 import { SmartAlarmService } from './services/smart-alarm.service';
 import { SmartAlarmRepository } from './repositories/smart-alarm.repository';
 import { AppController } from './controllers/app.controller';
+import { ScheduleService } from './services/schedule.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [],
+  imports: [ScheduleModule.forRoot()],
   controllers: [ClassicAlarmController, SmartAlarmController, AppController],
   providers: [
     ClassicAlarmService,
@@ -17,6 +19,7 @@ import { AppController } from './controllers/app.controller';
     DatabaseService,
     SmartAlarmService,
     SmartAlarmRepository,
+    ScheduleService,
   ],
 })
 export class AppModule {}

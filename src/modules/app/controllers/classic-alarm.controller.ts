@@ -18,16 +18,9 @@ export class ClassicAlarmController {
   constructor(private readonly appService: ClassicAlarmService) {}
 
   @Post()
-  // @UsePipes(
-  //   new ValidationPipe({
-  //     transform: true,
-  //     expectedType: CreateClassicAlarmDto,
-  //   }),
-  // )
   async createAlarm(
     @Body() alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
-    console.log(alarm);
     return await this.appService.createAlarm(alarm);
   }
 
