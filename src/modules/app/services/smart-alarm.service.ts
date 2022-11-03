@@ -1,11 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateClassicAlarmDto } from '../../../dto/CreateClassicAlarm.dto';
-import { CreateClassicAlarmResponseDto } from '../../../dto/CreateClassicAlarmResponse.dto';
-import { ClassicAlarmRepository } from '../repositories/classic-alarm.repository';
-import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
 import { SmartAlarmRepository } from '../repositories/smart-alarm.repository';
 import { SmartAlarm } from '../../../entity/smart-alarm.entity';
 import { CreateSmartAlarmDto } from '../../../dto/CreateSmartAlarm.dto';
+import { NotFoundError } from '../../../shared/errors';
 
 @Injectable()
 export class SmartAlarmService {
@@ -40,5 +37,20 @@ export class SmartAlarmService {
 
   async deleteAlarm(id: string) {
     return await this.app.delete(id);
+  }
+
+  async toggleAlarm(id: string) {
+    const alarm = await this.app.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!alarm) throw new NotFoundError('alarm');
+
+    return await this.app.updateOne(id, {
+      data: {
+        isActive: !alarm.isActive,
+      },
+    });
   }
 }

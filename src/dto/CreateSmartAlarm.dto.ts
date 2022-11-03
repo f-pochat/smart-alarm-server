@@ -1,9 +1,4 @@
-import {
-  IsByteLength,
-  IsDateString,
-  IsEmpty,
-  IsNotEmpty,
-} from 'class-validator';
+import { IsByteLength, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSmartAlarmDto {
@@ -31,6 +26,10 @@ export class CreateSmartAlarmDto {
   @IsNotEmpty()
   @ApiProperty()
   preparationTime: number;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  arrivalTime: Date;
 
   @IsNotEmpty()
   @ApiProperty()

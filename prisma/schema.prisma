@@ -31,5 +31,6 @@ model smartAlarm {
   destinationLocationLat String
   destinationLocationLong String
   deviceId String
+  arrivalTime DateTime
 }
 

@@ -1,8 +1,8 @@
 import {
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
   INestApplication,
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
 } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 

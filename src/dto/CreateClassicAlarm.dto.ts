@@ -1,4 +1,4 @@
-import { IsByteLength, IsDateString, IsNotEmpty } from 'class-validator';
+import { IsByteLength, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClassicAlarmDto {

@@ -5,6 +5,7 @@ export class SmartAlarm {
   isActive: boolean;
   deviceId: string;
   preparationTime: number;
+  arrivalTime: Date;
   alarmLocationLat: string;
   alarmLocationLong: string;
   destinationLocationLat: string;
