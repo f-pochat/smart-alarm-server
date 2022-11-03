@@ -3,6 +3,7 @@ import { CreateClassicAlarmDto } from '../../../dto/CreateClassicAlarm.dto';
 import { CreateClassicAlarmResponseDto } from '../../../dto/CreateClassicAlarmResponse.dto';
 import { ClassicAlarmRepository } from '../repositories/classic-alarm.repository';
 import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
+import { NotFoundError } from '../../../shared/errors';
 
 @Injectable()
 export class ClassicAlarmService {
@@ -42,5 +43,20 @@ export class ClassicAlarmService {
 
   async deleteAlarm(id: string) {
     return await this.app.delete(id);
+  }
+
+  async toggleAlarm(id: string) {
+    const alarm = await this.app.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!alarm) throw new NotFoundError('alarm');
+    return await this.app.updateOne(id, {
+      data: {
+        isActive: !alarm.isActive,
+      },
+    });
   }
 }

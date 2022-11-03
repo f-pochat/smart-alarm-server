@@ -1,8 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ClassicAlarmService } from '../services/classic-alarm.service';
-import { CreateClassicAlarmDto } from '../../../dto/CreateClassicAlarm.dto';
-import { CreateClassicAlarmResponseDto } from '../../../dto/CreateClassicAlarmResponse.dto';
-import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreateSmartAlarmDto } from '../../../dto/CreateSmartAlarm.dto';
 import { SmartAlarm } from '../../../entity/smart-alarm.entity';
 import { SmartAlarmService } from '../services/smart-alarm.service';
@@ -25,5 +29,10 @@ export class SmartAlarmController {
   @Delete('/:id')
   async deleteAlarm(@Param('id') id) {
     await this.appService.deleteAlarm(id);
+  }
+
+  @Put('/:id')
+  async toggleAlarm(@Param('id') id) {
+    await this.appService.toggleAlarm(id);
   }
 }

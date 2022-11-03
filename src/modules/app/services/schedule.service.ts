@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { SmartAlarmRepository } from '../repositories/smart-alarm.repository';
-const axios = require('axios');
 import { MapsApiError } from '../../../shared/errors';
 import { formatTime } from '../utils/utils';
 import { CronJob, CronTime } from 'cron';
+
+const axios = require('axios');
 
 @Injectable()
 export class ScheduleService {
