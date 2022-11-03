@@ -26,7 +26,7 @@ export class ScheduleService {
     alarms.map((a) => {
       axios
         .get(
-          `https://maps.googleapis.com/maps/api/directions/json?departure_time=now&destination=${a.destinationLocationLat},%20${a.destinationLocationLong}&origin=${a.alarmLocationLat},%20${a.alarmLocationLong}&key=AIzaSyA2eFPBooAFrYVqcpeWKiiBvoxAddUWVW4&traffic_model=best_guess`,
+          `https://maps.googleapis.com/maps/api/directions/json?departure_time=now&destination=${a.destinationLocationLat},%20${a.destinationLocationLong}&origin=${a.alarmLocationLat},%20${a.alarmLocationLong}&key=${process.env.MAPS_API}&traffic_model=best_guess`,
         )
         .then((r) => {
           const travelMinutes = formatTime(
@@ -53,7 +53,6 @@ export class ScheduleService {
   private async setSmartAlarm(id: string, date: Date) {
     //Check if it is an old alarm
     if (date < new Date()) {
-      console.log('Old Alarm');
       await this.app.updateOne(id, {
         data: {
           isActive: false,
