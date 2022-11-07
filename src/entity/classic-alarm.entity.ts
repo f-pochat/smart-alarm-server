@@ -1,7 +1,7 @@
 export class ClassicAlarm {
   id: string;
   time: Date;
-  days: object;
+  days: string;
   createdAt: Date;
   name: string;
   isActive: boolean;
