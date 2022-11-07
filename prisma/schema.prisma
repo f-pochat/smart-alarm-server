@@ -12,7 +12,7 @@ datasource db {
 
 model classicAlarm {
   id    String  @id @default(uuid())
-  days Json
+  days String
   time DateTime
   createdAt  DateTime @default(now())
   isActive Boolean @default(true)

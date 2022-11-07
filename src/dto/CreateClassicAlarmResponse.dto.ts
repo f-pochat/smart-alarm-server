@@ -9,7 +9,7 @@ export class CreateClassicAlarmResponseDto {
   name: string;
 
   @IsNotEmpty()
-  days: object;
+  days: string;
 
   @IsNotEmpty()
   id: string;

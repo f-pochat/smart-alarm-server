@@ -17,7 +17,10 @@ export class ClassicAlarmService {
   async createAlarm(
     alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
-    const createdAlarm = await this.app.create(alarm);
+    const createdAlarm = await this.app.create({
+      ...alarm,
+      days: alarm.days.join(','),
+    });
     await this.setClassicAlarm(createdAlarm);
     return createdAlarm;
   }
@@ -56,10 +59,11 @@ export class ClassicAlarmService {
   }
 
   private async setClassicAlarm(alarm: ClassicAlarm) {
+    console.log(alarm);
     const job = new CronJob(
-      `${alarm.time.getSeconds()} ${alarm.time.getMinutes()} ${alarm.time.getHours()} * * * ${this.formatDays(
-        [], //Check when we know what does days do
-      )}`,
+      `${alarm.time.getSeconds()} ${alarm.time.getMinutes()} ${alarm.time.getHours()} * * ${
+        alarm.days ?? '*'
+      }`,
       () => {
         console.log('Beep Beep Beep'); //Insert call to ESP32
         if (alarm.days) {
@@ -75,12 +79,5 @@ export class ClassicAlarmService {
     );
     this.schedulerRegistry.addCronJob(alarm.id, job);
     job.start();
-  }
-
-  private formatDays(days: string[]): string {
-    if (days) {
-      return days.join(',');
-    }
-    return '*';
   }
 }
