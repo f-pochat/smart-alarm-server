@@ -4,33 +4,22 @@ import { CreateClassicAlarmResponseDto } from '../../../dto/CreateClassicAlarmRe
 import { ClassicAlarmRepository } from '../repositories/classic-alarm.repository';
 import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
 import { NotFoundError } from '../../../shared/errors';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 
 @Injectable()
 export class ClassicAlarmService {
   constructor(
     @Inject(ClassicAlarmRepository)
     private readonly app: ClassicAlarmRepository,
+    private schedulerRegistry: SchedulerRegistry,
   ) {}
   async createAlarm(
     alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
-    console.log(alarm.deviceId);
-    // const rule = new RecurrenceRule();
-    // rule.dayOfWeek = alarm.days;
-    // rule.hour = createdAlarm.time.getHours();
-    // rule.minute = createdAlarm.time.getMinutes();
-    // const job = scheduleJob(rule, () => {
-    //     client.publish("alarm", 'BEEP BEEP BEEP', { qos: 0, retain: false }, (error) => {
-    //         if (error) {
-    //             console.error(error)
-    //         }
-    //     })
-    //     console.log("ALARM ACTIVATED")
-    // });
-    return await this.app.create({
-      ...alarm,
-      time: new Date(),
-    });
+    const createdAlarm = await this.app.create(alarm);
+    await this.setClassicAlarm(createdAlarm);
+    return createdAlarm;
   }
 
   async getAllAlarms(deviceId: string): Promise<ClassicAlarm[]> {
@@ -42,6 +31,7 @@ export class ClassicAlarmService {
   }
 
   async deleteAlarm(id: string) {
+    this.schedulerRegistry.deleteCronJob(id);
     return await this.app.delete(id);
   }
 
@@ -53,10 +43,46 @@ export class ClassicAlarmService {
     });
 
     if (!alarm) throw new NotFoundError('alarm');
+    if (alarm.isActive) {
+      this.schedulerRegistry.deleteCronJob(alarm.id);
+    } else {
+      await this.setClassicAlarm(alarm);
+    }
     return await this.app.updateOne(id, {
       data: {
         isActive: !alarm.isActive,
       },
     });
+  }
+
+  private async setClassicAlarm(alarm: ClassicAlarm) {
+    const job = new CronJob(
+      `${alarm.time.getSeconds()} ${alarm.time.getMinutes()} ${alarm.time.getHours()} * * * ${this.formatDays(
+        [], //Check when we know what does days do
+      )}`,
+      () => {
+        console.log('Beep Beep Beep'); //Insert call to ESP32
+        if (alarm.days) {
+        } else {
+          this.schedulerRegistry.deleteCronJob(alarm.id);
+          this.app.updateOne(alarm.id, {
+            data: {
+              isActive: false,
+            },
+          });
+        }
+      },
+    );
+    this.schedulerRegistry.addCronJob(alarm.id, job);
+    job.start();
+    console.log(new Date());
+    console.log(this.schedulerRegistry.getCronJob(alarm.id));
+  }
+
+  private formatDays(days: string[]): string {
+    if (days) {
+      return days.join(',');
+    }
+    return '*';
   }
 }
