@@ -75,8 +75,6 @@ export class ClassicAlarmService {
     );
     this.schedulerRegistry.addCronJob(alarm.id, job);
     job.start();
-    console.log(new Date());
-    console.log(this.schedulerRegistry.getCronJob(alarm.id));
   }
 
   private formatDays(days: string[]): string {
