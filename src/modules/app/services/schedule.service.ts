@@ -4,6 +4,7 @@ import { SmartAlarmRepository } from '../repositories/smart-alarm.repository';
 import { MapsApiError } from '../../../shared/errors';
 import { formatTime } from '../utils/utils';
 import { CronJob, CronTime } from 'cron';
+import { client } from '../../../main';
 
 const axios = require('axios');
 
@@ -72,7 +73,14 @@ export class ScheduleService {
       const job = new CronJob(
         `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
         () => {
-          console.log('Beep Beep Beep'); //Insert call to ESP32 for sound
+          client.publish(
+            'alarm',
+            'BEEP BEEP BEEP',
+            { qos: 0, retain: false },
+            (error) => {
+              if (error) console.error(error);
+            },
+          ); //Call to ESP32 for sound
           this.schedulerRegistry.deleteCronJob(id);
           this.app.updateOne(id, {
             data: {
