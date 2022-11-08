@@ -6,6 +6,7 @@ import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
 import { NotFoundError } from '../../../shared/errors';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { client } from '../../../main';
 
 @Injectable()
 export class ClassicAlarmService {
@@ -59,13 +60,19 @@ export class ClassicAlarmService {
   }
 
   private async setClassicAlarm(alarm: ClassicAlarm) {
-    console.log(alarm);
     const job = new CronJob(
       `${alarm.time.getSeconds()} ${alarm.time.getMinutes()} ${alarm.time.getHours()} * * ${
-        alarm.days ?? '*'
+        alarm.days.length ? alarm.days : '*'
       }`,
       () => {
-        console.log('Beep Beep Beep'); //Insert call to ESP32
+        client.publish(
+          'alarm',
+          'BEEP BEEP BEEP',
+          { qos: 0, retain: false },
+          (error) => {
+            if (error) console.error(error);
+          },
+        ); // Call to esp32 for sound
         if (alarm.days) {
         } else {
           this.schedulerRegistry.deleteCronJob(alarm.id);
