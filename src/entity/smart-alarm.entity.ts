@@ -10,4 +10,5 @@ export class SmartAlarm {
   alarmLocationLong: string;
   destinationLocationLat: string;
   destinationLocationLong: string;
+  activationTime: Date;
 }
