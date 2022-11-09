@@ -17,7 +17,10 @@ export class SmartAlarmService {
   ) {}
 
   async createAlarm(alarm: CreateSmartAlarmDto): Promise<SmartAlarm> {
-    const al = await this.app.create(alarm);
+    const al = await this.app.create({
+      ...alarm,
+      arrivalTime: new Date(alarm.arrivalTime),
+    });
     axios
       .get(
         `https://maps.googleapis.com/maps/api/directions/json?departure_time=now&destination=${al.destinationLocationLat},%20${al.destinationLocationLong}&origin=${al.alarmLocationLat},%20${al.alarmLocationLong}&key=${process.env.MAPS_API}&traffic_model=best_guess`,

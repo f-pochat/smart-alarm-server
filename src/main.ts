@@ -1,21 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
-import { randomUUID } from 'crypto';
 import { connect } from 'mqtt';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
-export const client = connect(
-  `tls://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`,
-  {
-    clientId: `mqtt_${randomUUID()}`,
-    clean: true,
-    connectTimeout: 4000,
-    username: process.env.MQTT_USERNAME,
-    password: process.env.MQTT_PASSWORD,
-    reconnectPeriod: 1000,
-  },
-);
+export const client = connect({ port: 1883, host: 'broker.hivemq.com' });
 
 async function bootstrap() {
   client.on('connect', () => {
