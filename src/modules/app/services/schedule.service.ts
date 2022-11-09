@@ -4,6 +4,7 @@ import { SmartAlarmRepository } from '../repositories/smart-alarm.repository';
 import { MapsApiError } from '../../../shared/errors';
 import { formatTime } from '../utils/utils';
 import { CronJob, CronTime } from 'cron';
+import { client } from '../../../main';
 
 const axios = require('axios');
 
@@ -17,7 +18,7 @@ export class ScheduleService {
 
   // Every N time it iters over every active smart alarm
   // and sets the job
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_NOON) //For deployment, change when developping
+  @Cron(CronExpression.EVERY_10_SECONDS) //For deployment, change when developping
   async checkForTriggerAlarms() {
     const alarms = await this.app.findMany({
       where: {
@@ -62,6 +63,11 @@ export class ScheduleService {
       return;
     }
     try {
+      await this.app.updateOne(id, {
+        data: {
+          activationTime: date,
+        },
+      });
       const alarm = this.schedulerRegistry.getCronJob(id);
       alarm.setTime(
         new CronTime(
@@ -73,6 +79,14 @@ export class ScheduleService {
         `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
         () => {
           console.log('Beep Beep Beep'); //Insert call to ESP32 for sound
+          client.publish(
+            'alarm',
+            'BEEP BEEP BEEP',
+            { qos: 0, retain: false },
+            (error) => {
+              console.log(error);
+            },
+          );
           this.schedulerRegistry.deleteCronJob(id);
           this.app.updateOne(id, {
             data: {

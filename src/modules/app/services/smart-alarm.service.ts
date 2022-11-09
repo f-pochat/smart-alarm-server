@@ -11,7 +11,10 @@ export class SmartAlarmService {
     private readonly app: SmartAlarmRepository,
   ) {}
   async createAlarm(alarm: CreateSmartAlarmDto): Promise<SmartAlarm> {
-    return await this.app.create(alarm);
+    return await this.app.create({
+      ...alarm,
+      arrivalTime: new Date(alarm.arrivalTime),
+    });
   }
 
   async getAllAlarms(deviceId: string): Promise<SmartAlarm[]> {

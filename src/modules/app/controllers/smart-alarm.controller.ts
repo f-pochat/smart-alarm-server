@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { CreateSmartAlarmDto } from '../../../dto/CreateSmartAlarm.dto';
 import { SmartAlarm } from '../../../entity/smart-alarm.entity';
 import { SmartAlarmService } from '../services/smart-alarm.service';
