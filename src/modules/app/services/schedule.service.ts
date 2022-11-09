@@ -18,7 +18,7 @@ export class ScheduleService {
 
   // Every N time it iters over every active smart alarm
   // and sets the job
-  @Cron(CronExpression.EVERY_10_SECONDS) //For deployment, change when developping
+  @Cron(CronExpression.EVERY_10_MINUTES) //For deployment, change when developping
   async checkForTriggerAlarms() {
     const alarms = await this.app.findMany({
       where: {
@@ -78,13 +78,12 @@ export class ScheduleService {
       const job = new CronJob(
         `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
         () => {
-          console.log('Beep Beep Beep'); //Insert call to ESP32 for sound
           client.publish(
             'alarm',
             'BEEP BEEP BEEP',
             { qos: 0, retain: false },
             (error) => {
-              console.log(error);
+              if (error) console.error(error);
             },
           );
           this.schedulerRegistry.deleteCronJob(id);
