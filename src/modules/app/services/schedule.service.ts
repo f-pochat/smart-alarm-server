@@ -52,7 +52,7 @@ export class ScheduleService {
   //Tries to find a running job, if throws error (does not find it),
   //creates a new one, else,
   //setTheNewHour
-  private async setSmartAlarm(id: string, date: Date) {
+  async setSmartAlarm(id: string, date: Date) {
     //Check if it is an old alarm
     if (date < new Date()) {
       await this.app.updateOne(id, {
