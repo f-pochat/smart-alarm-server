@@ -35,7 +35,9 @@ export class ClassicAlarmService {
   }
 
   async deleteAlarm(id: string) {
-    this.schedulerRegistry.deleteCronJob(id);
+    if (this.schedulerRegistry.getCronJob(id)) {
+      this.schedulerRegistry.deleteCronJob(id);
+    }
     return await this.app.delete(id);
   }
 
