@@ -18,7 +18,7 @@ export class ScheduleService {
 
   // Every N time it iters over every active smart alarm
   // and sets the job
-  @Cron(CronExpression.EVERY_YEAR) //For  deployment, change when developping
+  @Cron(CronExpression.EVERY_10_MINUTES) //deployment, change when developping
   async checkForTriggerAlarms() {
     const alarms = await this.app.findMany({
       where: {
