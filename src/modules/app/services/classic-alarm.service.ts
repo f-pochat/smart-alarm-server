@@ -67,14 +67,6 @@ export class ClassicAlarmService {
         alarm.days.length ? alarm.days : '*'
       }`,
       () => {
-        client.publish(
-          'alarm',
-          'BEEP BEEP BEEP',
-          { qos: 0, retain: false },
-          (error) => {
-            if (error) console.error(error);
-          },
-        ); // Call to esp32 for sound
         if (alarm.days) {
         } else {
           this.schedulerRegistry.deleteCronJob(alarm.id);

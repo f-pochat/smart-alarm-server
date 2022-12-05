@@ -3,8 +3,9 @@ import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { SmartAlarmRepository } from '../repositories/smart-alarm.repository';
 import { MapsApiError } from '../../../shared/errors';
 import { formatTime } from '../utils/utils';
-import { CronJob, CronTime } from 'cron';
+import { CronJob } from 'cron';
 import { client } from '../../../main';
+import { ClassicAlarmRepository } from '../repositories/classic-alarm.repository';
 
 const axios = require('axios');
 
@@ -12,15 +13,16 @@ const axios = require('axios');
 export class ScheduleService {
   constructor(
     @Inject(SmartAlarmRepository)
-    private readonly app: SmartAlarmRepository,
+    private readonly smartAlarmRepository: SmartAlarmRepository,
+    private readonly classicAlarmRepository: ClassicAlarmRepository,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
 
   // Every N time it iters over every active smart alarm
   // and sets the job
-  @Cron(CronExpression.EVERY_10_MINUTES) //deployment,  change when developping
+  @Cron(CronExpression.EVERY_10_MINUTES) //deployment,  change when developing
   async checkForTriggerAlarms() {
-    const alarms = await this.app.findMany({
+    const alarms = await this.smartAlarmRepository.findMany({
       where: {
         isActive: true,
       },
@@ -55,7 +57,7 @@ export class ScheduleService {
   async setSmartAlarm(id: string, date: Date) {
     //Check if it is an old alarm
     if (date < new Date()) {
-      await this.app.updateOne(id, {
+      await this.smartAlarmRepository.updateOne(id, {
         data: {
           isActive: false,
         },
@@ -63,31 +65,17 @@ export class ScheduleService {
       return;
     }
     try {
-      await this.app.updateOne(id, {
+      await this.smartAlarmRepository.updateOne(id, {
         data: {
           activationTime: date,
         },
       });
-      const alarm = this.schedulerRegistry.getCronJob(id);
-      alarm.setTime(
-        new CronTime(
-          `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
-        ),
-      );
     } catch (e) {
       const job = new CronJob(
         `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
         () => {
-          client.publish(
-            'alarm',
-            'BEEP BEEP BEEP',
-            { qos: 0, retain: false },
-            (error) => {
-              if (error) console.error(error);
-            },
-          );
           this.schedulerRegistry.deleteCronJob(id);
-          this.app.updateOne(id, {
+          this.smartAlarmRepository.updateOne(id, {
             data: {
               isActive: false,
             },
@@ -97,5 +85,45 @@ export class ScheduleService {
       this.schedulerRegistry.addCronJob(id, job);
       job.start();
     }
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async sendAlarms() {
+    const smartAlarms = (
+      await this.smartAlarmRepository.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+    ).map((a) => {
+      return {
+        id: a.id,
+        time: a.preparationTime,
+      };
+    });
+
+    const classicAlarms = (
+      await this.classicAlarmRepository.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+    ).map((a) => {
+      return {
+        id: a.id,
+        time: a.time,
+      };
+    });
+
+    const allAlarmsData = [...smartAlarms, ...classicAlarms];
+
+    client.publish(
+      'alarm',
+      allAlarmsData.toString(),
+      { qos: 0, retain: false },
+      (error) => {
+        if (error) console.error(error);
+      },
+    );
   }
 }
