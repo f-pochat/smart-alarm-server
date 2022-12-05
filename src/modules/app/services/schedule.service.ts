@@ -87,7 +87,7 @@ export class ScheduleService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async sendAlarms() {
     const smartAlarms = (
       await this.smartAlarmRepository.findMany({
@@ -108,18 +108,25 @@ export class ScheduleService {
           isActive: true,
         },
       })
-    ).map((a) => {
-      return {
-        id: a.id,
-        time: a.time,
-      };
-    });
+    )
+      .filter(
+        (a) =>
+          a.days.length === 0 ||
+          a.days.includes(new Date().getDay().toString()) ||
+          a.days.includes((new Date().getDay() + 7).toString()),
+      )
+      .map((a) => {
+        return {
+          id: a.id,
+          time: a.time,
+        };
+      });
 
     const allAlarmsData = [...smartAlarms, ...classicAlarms];
 
     client.publish(
       'alarm',
-      allAlarmsData.toString(),
+      JSON.stringify(allAlarmsData),
       { qos: 0, retain: false },
       (error) => {
         if (error) console.error(error);
