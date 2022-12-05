@@ -68,12 +68,11 @@ export class ClassicAlarmService {
 
   private async setClassicAlarm(alarm: ClassicAlarm) {
     const job = new CronJob(
-      `${alarm.time.getSeconds()} ${alarm.time.getMinutes()} ${alarm.time.getHours()} * * ${
+      `${alarm.time.getUTCSeconds()} ${alarm.time.getUTCMinutes()} ${alarm.time.getUTCHours()} * * ${
         alarm.days.length ? alarm.days : '*'
       }`,
       () => {
         if (alarm.days) {
-          console.log('a');
         } else {
           this.schedulerRegistry.deleteCronJob(alarm.id);
           this.app.updateOne(alarm.id, {
@@ -87,6 +86,5 @@ export class ClassicAlarmService {
     );
     this.schedulerRegistry.addCronJob(alarm.id, job);
     job.start();
-    console.log(job.nextDate());
   }
 }

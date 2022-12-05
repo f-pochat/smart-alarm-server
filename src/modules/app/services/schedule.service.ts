@@ -100,10 +100,10 @@ export class ScheduleService {
     ).map(
       (a) =>
         `${a.activationTime
-          .getHours()
+          .getUTCHours()
           .toString()
           .padStart(2, '0')}${a.activationTime
-          .getMinutes()
+          .getUTCMinutes()
           .toString()
           .padStart(2, '0')}`,
     );
@@ -122,7 +122,7 @@ export class ScheduleService {
       )
       .map(
         (a) =>
-          `${a.time.getHours().toString().padStart(2, '0')}${a.time
+          `${a.time.getUTCHours().toString().padStart(2, '0')}${a.time
             .getMinutes()
             .toString()
             .padStart(2, '0')}`,
@@ -150,10 +150,10 @@ export class ScheduleService {
     ).map(
       (a) =>
         `${a.activationTime
-          .getHours()
+          .getUTCHours()
           .toString()
           .padStart(2, '0')}${a.activationTime
-          .getMinutes()
+          .getUTCMinutes()
           .toString()
           .padStart(2, '0')}`,
     );
@@ -172,8 +172,8 @@ export class ScheduleService {
       )
       .map(
         (a) =>
-          `${a.time.getHours().toString().padStart(2, '0')}${a.time
-            .getMinutes()
+          `${a.time.getUTCHours().toString().padStart(2, '0')}${a.time
+            .getUTCMinutes()
             .toString()
             .padStart(2, '0')}`,
       );
