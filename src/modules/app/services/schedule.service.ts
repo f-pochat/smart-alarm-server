@@ -57,14 +57,14 @@ export class ScheduleService {
   //setTheNewHour
   async setSmartAlarm(id: string, date: Date) {
     //Check if it is an old alarm
-    if (date < new Date()) {
-      await this.smartAlarmRepository.updateOne(id, {
-        data: {
-          isActive: false,
-        },
-      });
-      return;
-    }
+    // if (date < new Date()) {
+    //   await this.smartAlarmRepository.updateOne(id, {
+    //     data: {
+    //       isActive: false,
+    //     },
+    //   });
+    //   return;
+    // }
     try {
       await this.smartAlarmRepository.updateOne(id, {
         data: {
