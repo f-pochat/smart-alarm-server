@@ -14,6 +14,7 @@ export class ScheduleService {
   constructor(
     @Inject(SmartAlarmRepository)
     private readonly smartAlarmRepository: SmartAlarmRepository,
+    @Inject(ClassicAlarmRepository)
     private readonly classicAlarmRepository: ClassicAlarmRepository,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
@@ -70,6 +71,7 @@ export class ScheduleService {
           activationTime: date,
         },
       });
+      await this.sendAlarmsNow();
     } catch (e) {
       const job = new CronJob(
         `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} *`,
@@ -87,7 +89,7 @@ export class ScheduleService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async sendAlarms() {
     const smartAlarms = (
       await this.smartAlarmRepository.findMany({
@@ -95,13 +97,16 @@ export class ScheduleService {
           isActive: true,
         },
       })
-    ).map((a) => {
-      return {
-        id: a.id,
-        time: a.preparationTime,
-      };
-    });
-
+    ).map(
+      (a) =>
+        `${a.activationTime
+          .getHours()
+          .toString()
+          .padStart(2, '0')}${a.activationTime
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`,
+    );
     const classicAlarms = (
       await this.classicAlarmRepository.findMany({
         where: {
@@ -115,18 +120,69 @@ export class ScheduleService {
           a.days.includes(new Date().getDay().toString()) ||
           a.days.includes((new Date().getDay() + 7).toString()),
       )
-      .map((a) => {
-        return {
-          id: a.id,
-          time: a.time,
-        };
-      });
+      .map(
+        (a) =>
+          `${a.time.getHours().toString().padStart(2, '0')}${a.time
+            .getMinutes()
+            .toString()
+            .padStart(2, '0')}`,
+      );
 
     const allAlarmsData = [...smartAlarms, ...classicAlarms];
 
     client.publish(
-      'alarm',
-      JSON.stringify(allAlarmsData),
+      'smart-alarm',
+      allAlarmsData.toString() + ',',
+      { qos: 0, retain: false },
+      (error) => {
+        if (error) console.error(error);
+      },
+    );
+  }
+
+  async sendAlarmsNow() {
+    const smartAlarms = (
+      await this.smartAlarmRepository.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+    ).map(
+      (a) =>
+        `${a.activationTime
+          .getHours()
+          .toString()
+          .padStart(2, '0')}${a.activationTime
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`,
+    );
+    const classicAlarms = (
+      await this.classicAlarmRepository.findMany({
+        where: {
+          isActive: true,
+        },
+      })
+    )
+      .filter(
+        (a) =>
+          a.days.length === 0 ||
+          a.days.includes(new Date().getDay().toString()) ||
+          a.days.includes((new Date().getDay() + 7).toString()),
+      )
+      .map(
+        (a) =>
+          `${a.time.getHours().toString().padStart(2, '0')}${a.time
+            .getMinutes()
+            .toString()
+            .padStart(2, '0')}`,
+      );
+
+    const allAlarmsData = [...smartAlarms, ...classicAlarms];
+
+    client.publish(
+      'smart-alarm',
+      allAlarmsData.toString() + ',',
       { qos: 0, retain: false },
       (error) => {
         if (error) console.error(error);

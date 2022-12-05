@@ -9,9 +9,9 @@ export const client = connect({ port: 1883, host: 'broker.hivemq.com' });
 async function bootstrap() {
   client.on('connect', () => {
     console.log('Connected!');
-    const topic = 'alarm';
+    const topic = 'smart-alarm';
     client.subscribe([topic], () => {
-      console.log(`Subscribe to topic ${topic}`);
+      console.log(`Subscribed to topic ${topic}`);
     });
   });
 

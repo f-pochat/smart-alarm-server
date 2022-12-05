@@ -6,15 +6,19 @@ import { ClassicAlarm } from '../../../entity/classic-alarm.entity';
 import { NotFoundError } from '../../../shared/errors';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { client } from '../../../main';
+import { ScheduleService } from './schedule.service';
 
 @Injectable()
 export class ClassicAlarmService {
   constructor(
     @Inject(ClassicAlarmRepository)
     private readonly app: ClassicAlarmRepository,
+    @Inject(ScheduleService)
+    private readonly scheduleService: ScheduleService,
+
     private schedulerRegistry: SchedulerRegistry,
   ) {}
+
   async createAlarm(
     alarm: CreateClassicAlarmDto,
   ): Promise<CreateClassicAlarmResponseDto> {
@@ -23,6 +27,7 @@ export class ClassicAlarmService {
       days: alarm.days.join(','),
     });
     await this.setClassicAlarm(createdAlarm);
+    await this.scheduleService.sendAlarmsNow();
     return createdAlarm;
   }
 
@@ -68,6 +73,7 @@ export class ClassicAlarmService {
       }`,
       () => {
         if (alarm.days) {
+          console.log('a');
         } else {
           this.schedulerRegistry.deleteCronJob(alarm.id);
           this.app.updateOne(alarm.id, {
@@ -75,10 +81,12 @@ export class ClassicAlarmService {
               isActive: false,
             },
           });
+          console.log('Finished');
         }
       },
     );
     this.schedulerRegistry.addCronJob(alarm.id, job);
     job.start();
+    console.log(job.nextDate());
   }
 }

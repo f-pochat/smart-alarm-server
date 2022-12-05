@@ -13,6 +13,7 @@ export class SmartAlarmService {
   constructor(
     @Inject(SmartAlarmRepository)
     private readonly app: SmartAlarmRepository,
+    @Inject(ScheduleService)
     private schedule: ScheduleService,
   ) {}
 
